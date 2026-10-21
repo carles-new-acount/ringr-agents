@@ -52,11 +52,7 @@ class HttpClient(ABC):
 
 
 class FakeHttpClient(HttpClient):
-    """Records the requests instead of sending them.
-
-    By default every request gets a 200 OK, as the exercise allows assuming.
-    `status_code` and `error` let tests simulate failing integrations.
-    """
+    """Records requests instead of sending them. Answers 200 unless configured otherwise."""
 
     def __init__(self, status_code: int = 200, error: Exception | None = None) -> None:
         self.status_code = status_code
@@ -67,7 +63,6 @@ class FakeHttpClient(HttpClient):
         logger.info("Simulated %s %s", request.method, request.url)
         if self.error is not None:
             raise self.error
-        # Validate the body is serializable, as a real client would.
-        _ = request.body
+        _ = request.body  # fails here if the payload is not serializable
         self.sent_requests.append(request)
         return HttpResponse(self.status_code)

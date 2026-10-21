@@ -1,5 +1,4 @@
-"""Composition root: the only place that knows URLs, credentials and which
-integration each agent uses. Agents receive their dependencies already built."""
+"""Builds agents with their integrations."""
 
 from __future__ import annotations
 

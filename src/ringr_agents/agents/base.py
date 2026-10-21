@@ -37,11 +37,7 @@ class TurnResult:
 
 
 class BaseAgent(ABC):
-    """Template Method: `handle_turn` fixes the order of the steps and each
-    agent only decides which action (if any) the parsed data leads to.
-
-    One instance handles one conversation: the deduplication state lives here.
-    """
+    """Runs a conversation turn. One instance handles one conversation."""
 
     def __init__(
         self,
@@ -85,17 +81,14 @@ class BaseAgent(ABC):
 
     @abstractmethod
     def build_action(self, parsed_data: Mapping[str, Any]) -> Action | None:
-        """Validate and normalize the parsed data and return the action to
-        execute, or None if the business conditions are not met."""
+        """Return the action to execute, or None if the conditions are not met."""
 
     def _is_duplicate(self, action: Action) -> bool:
-        """Same action with the same normalized data already executed in this
-        conversation. Override for stricter policies (e.g. one action per conversation)."""
+        """Whether this exact action was already executed in this conversation."""
         return action in self._executed_actions
 
     def _read_field(self, parsed_data: Mapping[str, Any], name: str, parse: Callable[[Any], T]) -> T | None:
-        """Missing, null or invalid values are all treated as "not provided":
-        an invalid value must never trigger an action."""
+        """Read a field, treating missing, null or invalid values as not provided."""
         value = parsed_data.get(name)
         if value is None:
             return None

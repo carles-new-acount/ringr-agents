@@ -24,8 +24,7 @@ class ActionResult:
 class Integration(ABC):
     @abstractmethod
     def execute(self, action: Action, *, idempotency_key: str) -> ActionResult:
-        """Deliver the action. Must not raise for delivery problems: they are
-        reported as an unsuccessful ActionResult so the turn can go on."""
+        """Deliver the action. Delivery problems are returned, not raised."""
 
 
 class Authenticator(ABC):
@@ -41,23 +40,16 @@ class BearerTokenAuth(Authenticator):
         return {"Authorization": f"Bearer {self.token}"}
 
 
-# Printable ASCII except '%', which is the escape character itself.
 _HEADER_SAFE_CHARS = "".join(c for c in string.printable if c not in "%\t\n\r\x0b\x0c")
 
 
 def to_header_value(value: object) -> str:
-    """Header values must be printable ASCII without CR/LF. Anything else is
-    percent-encoded: it avoids header injection and encoding errors with
-    free text such as 'dirección'."""
+    """Percent-encode anything that is not printable ASCII (also prevents header injection)."""
     return quote(str(value), safe=_HEADER_SAFE_CHARS)
 
 
 class HttpIntegration(Integration):
-    """Sends the action payload as a JSON POST.
-
-    Following the exercise, every non-null payload field is also sent as an
-    extra header with the same name.
-    """
+    """Sends the action as a JSON POST; non-null payload fields are also sent as headers."""
 
     def __init__(self, url: str, client: HttpClient, auth: Authenticator, method: str = "POST") -> None:
         self._url = url

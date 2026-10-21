@@ -1,8 +1,4 @@
-"""Simulated language models.
-
-In production these would wrap an LLM call. Here they return pre-scripted
-outputs, one per turn, so the agents can be exercised deterministically.
-"""
+"""Simulated models that return one scripted output per turn."""
 
 from __future__ import annotations
 
@@ -57,11 +53,7 @@ class ConversationModel(_ScriptedModel):
 
 
 class ParserModel(_ScriptedModel):
-    """Extracts structured data from the conversation.
-
-    Each output is the data extracted from the whole conversation so far,
-    not only from the last message.
-    """
+    """Extracts structured data from the whole conversation so far."""
 
     def __init__(self, parsed_outputs: Iterable[dict[str, Any]]) -> None:
         super().__init__(parsed_outputs)

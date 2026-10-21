@@ -1,8 +1,4 @@
-"""Validation and normalization of the values returned by the ParserModel.
-
-Each function receives a raw value (never None: missing values are handled by
-the caller) and returns it normalized, or raises InvalidFieldError.
-"""
+"""Validation and normalization of the values returned by the ParserModel."""
 
 from __future__ import annotations
 

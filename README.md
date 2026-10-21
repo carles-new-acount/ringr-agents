@@ -100,9 +100,6 @@ estado interno.
 
 ## Decisiones principales
 
-El razonamiento completo, incluidas las alternativas descartadas, está en
-[`docs/decisiones.md`](docs/decisiones.md). Resumen:
-
 **Template Method en `BaseAgent`.** El orden de los pasos es igual para todos los
 agentes y no debería poder romperse en una subclase. Por eso `handle_turn` es
 concreto y las subclases solo implementan `build_action`. Un agente nuevo son unas

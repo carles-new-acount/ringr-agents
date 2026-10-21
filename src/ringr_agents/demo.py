@@ -1,7 +1,4 @@
-"""Run two scripted conversations and print the requests that would be sent.
-
-RINGR_API_TOKEN=ringr_test_token_9f3a2c1d python -m ringr_agents.demo
-"""
+"""Runs one scripted conversation per agent and prints the requests built."""
 
 from __future__ import annotations
 
