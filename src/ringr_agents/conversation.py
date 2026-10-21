@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -21,6 +22,7 @@ class Message:
 class Conversation:
     """Ordered list of messages exchanged in a single conversation."""
 
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
     messages: list[Message] = field(default_factory=list)
 
     def add_user_message(self, content: str) -> None:

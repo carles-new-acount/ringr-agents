@@ -7,9 +7,21 @@ outputs, one per turn, so the agents can be exercised deterministically.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, Protocol
 
 from ringr_agents.conversation import Conversation
+
+
+class SupportsAnswerUser(Protocol):
+    """Anything able to produce the agent's reply (a real LLM client, a mock...)."""
+
+    def answer_user(self, conversation: Conversation) -> str: ...
+
+
+class SupportsParseData(Protocol):
+    """Anything able to extract structured data from the conversation."""
+
+    def parse_data(self, conversation: Conversation) -> dict[str, Any]: ...
 
 
 class ScriptExhaustedError(RuntimeError):
@@ -57,4 +69,3 @@ class ParserModel(_ScriptedModel):
     def parse_data(self, conversation: Conversation) -> dict[str, Any]:
         # Copy so callers can't mutate the script.
         return dict(self._next_output())
-
