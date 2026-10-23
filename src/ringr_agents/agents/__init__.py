@@ -1,5 +1,3 @@
-# Reúne los agentes en un solo sitio para poder hacer:
-#   from ringr_agents.agents import DebtAgent, AssistanceAgent
 from ringr_agents.agents.assistance import AssistanceAgent
 from ringr_agents.agents.base import ActionOutcome, BaseAgent, TurnResult
 from ringr_agents.agents.debt import DebtAgent
