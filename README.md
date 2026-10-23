@@ -85,6 +85,11 @@ BaseAgent ──decide──▶ Action ──se entrega con──▶ Integration
 
 ### Ciclo de un turno (`BaseAgent.handle_turn`)
 
+```
+ConversationModel  →  ParserModel  →  Agente  →  Acción  →  HttpIntegration
+   (responde)        (da la ficha)   (decide)   (paquete)      (envía)
+```
+
 1. Se añade el mensaje del usuario a la conversación.
 2. `ConversationModel.answer_user(conversation)` genera la respuesta, que también se añade.
 3. `ParserModel.parse_data(conversation)` devuelve el dict con los datos extraídos.
