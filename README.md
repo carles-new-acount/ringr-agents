@@ -134,7 +134,12 @@ entrega como `ActionResult(success=False)` en vez de lanzar una excepción. Si l
 integración falla (error de red o respuesta no 2xx), el usuario recibe igualmente
 su respuesta, el resultado es `FAILED` y la acción no se marca como ejecutada. Si
 el parser la sigue devolviendo en el turno siguiente, se reintenta con la misma
-`Idempotency-Key`.
+`Idempotency-Key`. Una respuesta cuenta como éxito si `HttpResponse.ok` es cierto:
+
+| `status_code` | `ok` |
+|---|---|
+| 200, 201 (cualquier 2xx) | `True` |
+| 400, 500 (cualquier otro) | `False` |
 
 **Modelos detrás de un `Protocol`.** El agente depende de `SupportsAnswerUser` y
 `SupportsParseData`, no de las clases simuladas. Cualquier objeto con
