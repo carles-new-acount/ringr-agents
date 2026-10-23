@@ -193,6 +193,9 @@ comentaría con el equipo de la API:
   no llegar. La convención sería `Commitment-Date` o `X-Commitment-Date`.
 - **Tamaño.** Los servidores limitan el tamaño de los headers (unos 8 KB) y una
   solicitud larga podría superarlo.
+- **Datos personales en logs.** Proxies y gateways suelen registrar los headers.
+  Importes, fechas de pago o el texto de una solicitud son datos personales
+  (RGPD), así que en producción no deberían ir en headers.
 
 Mi recomendación sería mandar los datos solo en el body.
 
@@ -211,7 +214,21 @@ Mi recomendación sería mandar los datos solo en el body.
   Una mejora sería parsear antes de responder, o informar del resultado al
   `ConversationModel` en el turno siguiente.
 - **Reintentos.** Solo se reintenta si el parser vuelve a devolver la acción en un
-  turno posterior. Para acciones críticas convendría una política de reintentos
-  con backoff en la integración, o una cola persistente (patrón outbox).
+  turno posterior: si la conversación termina tras un fallo, la acción se pierde.
+  Para acciones críticas, el agente debería dejar la acción en una cola persistente
+  (patrón outbox) y un worker aparte enviarla con backoff exponencial, reutilizando
+  la misma `Idempotency-Key` y moviéndola a una cola de fallidos tras N intentos.
+  Encaja como una `Integration` más, sin tocar los agentes.
+- **Compromisos que cambian.** Si el usuario pasa de 300 € a 200 €, se registran
+  dos compromisos con `POST`. Si negocio quiere uno solo por conversación, la API
+  debería ofrecer una actualización (`PUT`/`PATCH`) del compromiso existente.
+- **Contrato agente ↔ parser.** Las claves que espera cada agente están implícitas
+  en su `build_action`. Una mejora sería que cada agente declarase sus campos
+  (`required_fields`) y usarlos para configurar el prompt o el esquema del parser,
+  de modo que el contrato viva en un solo sitio.
+- **Un agente por conversación.** Si una llamada de cobros necesitara derivar a
+  atención al cliente, haría falta un orquestador que elija el agente en cada turno
+  sobre la misma `Conversation` (el constructor ya la acepta). La deduplicación
+  pasaría entonces del agente a la conversación.
 - **Cliente HTTP real.** Bastaría con implementar `HttpClient.send` con `httpx` o
   `requests`, traduciendo los errores de red a `HttpTransportError`.
