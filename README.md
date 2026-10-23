@@ -77,6 +77,7 @@ BaseAgent ──decide──▶ Action ──se entrega con──▶ Integration
 
 | Pieza | Qué sabe | Qué **no** sabe |
 |---|---|---|
+| ConversationModel / ParserModel | Responder al usuario / extraer los datos de la conversación | Reglas de negocio, que existe una API |
 | Agente | Reglas de negocio: qué campos necesita, cuándo actuar | URLs, HTTP, tokens |
 | Action | Los datos validados de la acción | Cómo ni a dónde se envía |
 | Integration | Cómo construir la request: URL, headers, auth | Reglas de negocio |
@@ -128,10 +129,25 @@ son iguales y hasheables. La deduplicación es un simple `set`.
   puede cubrir: la request llega al servidor pero la respuesta se pierde (timeout)
   y se reintenta.
 
-**Un fallo no rompe el turno.** Si la integración falla (error de red o respuesta
-no 2xx), el usuario recibe igualmente su respuesta, el resultado es `FAILED` y la
-acción no se marca como ejecutada. Si el parser la sigue devolviendo en el turno
-siguiente, se reintenta con la misma `Idempotency-Key`.
+**Un fallo no rompe el turno.** `Integration.execute` devuelve los problemas de
+entrega como `ActionResult(success=False)` en vez de lanzar una excepción. Si la
+integración falla (error de red o respuesta no 2xx), el usuario recibe igualmente
+su respuesta, el resultado es `FAILED` y la acción no se marca como ejecutada. Si
+el parser la sigue devolviendo en el turno siguiente, se reintenta con la misma
+`Idempotency-Key`.
+
+**Modelos detrás de un `Protocol`.** El agente depende de `SupportsAnswerUser` y
+`SupportsParseData`, no de las clases simuladas. Cualquier objeto con
+`answer_user` o `parse_data` sirve, así que un cliente de LLM real se conecta sin
+heredar de nada del proyecto ni tocar los agentes.
+
+**Reloj inyectable.** `DebtAgent` recibe `today` (por defecto `date.today`) para
+rechazar fechas pasadas. Los tests le pasan una fecha fija y no dependen del día
+en que se ejecutan.
+
+**El token no se filtra.** `BearerTokenAuth.token` y `Settings.api_token` usan
+`field(repr=False)`, así que no aparecen al imprimir el objeto, en logs ni en
+tracebacks.
 
 **Validación estricta: un dato inválido equivale a un dato ausente.** Nunca se
 ejecuta una acción con datos dudosos. Si el parser devuelve una fecha con otro
